@@ -1,0 +1,7 @@
+[build]
+  base = "front-end/"
+  command = "gatsby build"
+  publish = "front-end/public"
+  functions = "front-end/functions/"
+[[plugins]]
+  package = "netlify-plugin-gatsby-cache"
