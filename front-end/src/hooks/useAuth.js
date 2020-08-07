@@ -61,7 +61,7 @@ const AuthProvider = ({ children }) => {
 
     const stripeId = async () => {
       const response = await fetch(
-        "https://zealous-sinoussi-36e62d.netlify.app/.netlify/functions/stripe-signup",
+        "https://zealous-sinoussi-36e62d.netlify.app/.netlify/functions/stripe-create-customer",
         {
           method: "POST",
           headers: {
