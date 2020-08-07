@@ -58,9 +58,31 @@ const AuthProvider = ({ children }) => {
     if (isntBrowser) {
       return
     }
+
+    const stripeId = async () => {
+      const response = await fetch(
+        "https://zealous-sinoussi-36e62d.netlify.app/.netlify/functions/stripe-signup",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        }
+      ).then(res => res.json())
+
+      return response.customerId
+    }
+
+    console.log(stripeId())
+
     return new Promise((resolve, reject) => {
       axios
-        .post(`${apiURL}/auth/local/register`, { username, email, password })
+        .post(`${apiURL}/auth/local/register`, {
+          username,
+          email,
+          password,
+        })
         .then(res => {
           //set token response from Strapi for server validation
           Cookie.set("token", res.data.jwt)
@@ -87,7 +109,7 @@ const AuthProvider = ({ children }) => {
       axios
         .post(`${apiURL}/auth/local/`, { identifier, password })
         .then(res => {
-          console.log(res);
+          console.log(res)
           //set token response from Strapi for server validation
           Cookie.set("token", res.data.jwt)
 
