@@ -65,7 +65,7 @@ const AuthProvider = ({ children }) => {
       password: password,
     }
 
-    const response = await fetch("/.netlify/functions/stripe-create-customer", {
+    const response = await fetch("/.netlify/functions/create-customer", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
