@@ -19,7 +19,7 @@ const isntBrowser = typeof window === "undefined"
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(defaultValues.user)
-  const [loggedIn, setLoggedIn] = useState(defaultValues.user)
+  const [loggedIn, setLoggedIn] = useState(defaultValues.loggedIn)
   const isAuthenticated = loggedIn && Object.keys(user).length
 
   useEffect(() => {
@@ -53,50 +53,57 @@ const AuthProvider = ({ children }) => {
   }, [])
 
   //register a new user
-  const registerUser = (username, email, password) => {
+  const registerUser = async (username, email, password) => {
     //prevent function from being ran on the server
     if (isntBrowser) {
       return
     }
 
-    const stripeId = async () => {
-      const response = await fetch(
-        "https://zealous-sinoussi-36e62d.netlify.app/.netlify/functions/stripe-create-customer",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email }),
-        }
-      ).then(res => res.json())
-
-      return response.customerId
+    const info = {
+      username: username,
+      email: email,
+      password: password,
     }
 
-    console.log(stripeId())
-
-    return new Promise((resolve, reject) => {
-      axios
-        .post(`${apiURL}/auth/local/register`, {
-          username,
-          email,
-          password,
-        })
-        .then(res => {
-          //set token response from Strapi for server validation
-          Cookie.set("token", res.data.jwt)
-
-          //resolve the promise to set loading to false in SignUp form
-          resolve(res)
-          //redirect back to home page for restaurance selection
-          navigate("/app")
-        })
-        .catch(error => {
-          //reject the promise and pass the error object back to the form
-          reject(error)
-        })
+    const response = await fetch("/.netlify/functions/stripe-create-customer", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(info),
     })
+      .then(res => res.json())
+      .catch(err => console.error(JSON.stringify(err, null, 2)))
+
+    console.log("response =>", response)
+
+    return response
+
+    // getStripeId()
+    // console.log(stripeId)
+
+    // return new Promise((resolve, reject) => {
+    //   axios
+    //     .post(`${apiURL}/auth/local/register`, {
+    //       username,
+    //       email,
+    //       password,
+    //       stripeId,
+    //     })
+    //     .then(res => {
+    //       //set token response from Strapi for server validation
+    //       Cookie.set("token", res.data.jwt)
+
+    //       //resolve the promise to set loading to false in SignUp form
+    //       resolve(res)
+    //       //redirect back to home page for restaurance selection
+    //       navigate("/app")
+    //     })
+    //     .catch(error => {
+    //       //reject the promise and pass the error object back to the form
+    //       reject(error)
+    //     })
+    // })
   }
 
   const login = (identifier, password) => {
@@ -150,6 +157,7 @@ const AuthProvider = ({ children }) => {
         registerUser,
         login,
         logout,
+        setLoggedIn,
       }}
     >
       {children}
